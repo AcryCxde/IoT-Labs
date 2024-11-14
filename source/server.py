@@ -11,8 +11,21 @@ TOPIC_ACTUATOR = "iot_lab1/actuator"
 
 client = mqtt.Client(client_id="SmokeDetector_001", protocol=mqtt.MQTTv311)
 manual_mode = None
+actuator_mode = False
 fire_suppression_status = None  # ссылка на функцию для активации пожаротушения
 start_time = time.time()
+
+def get_actuator_mode():
+    global actuator_mode
+    return actuator_mode
+
+def set_actuator_mode(var):
+    global actuator_mode
+    actuator_mode = var
+
+def set_manual_mode(var):
+    global manual_mode
+    manual_mode = var
 
 def publish_sensor_data(smoke_level):
     current_time = time.time()
@@ -26,10 +39,6 @@ def publish_sensor_data(smoke_level):
         "smoke_level": rounded_smoke_level
     }
     client.publish(TOPIC_SENSOR, json.dumps(data))
-
-def set_manual_mode(mode_var):
-    global manual_mode
-    manual_mode = mode_var  # устанавливаем ссылку на manual_mode из main.py
 
 def set_fire_suppression_status(status_func):
     global fire_suppression_status
@@ -46,16 +55,20 @@ def on_message(client, userdata, msg):
 
     if msg.topic == TOPIC_MODE:
         if payload == "auto":
-            manual_mode.set(0)
+            set_manual_mode(0)
             print("Автоматический режим включен")
         elif payload == "manual":
-            manual_mode.set(1)
+            set_manual_mode(1)
             print("Ручной режим включен")
 
-    elif msg.topic == TOPIC_ACTUATOR and manual_mode.get():
-        if payload == "activate" and fire_suppression_status:
-            print("Актуатор активирован по команде от сервера")
-            fire_suppression_status()  # активирует систему пожаротушения
+    elif msg.topic == TOPIC_ACTUATOR:
+        if payload == "activate":
+            if manual_mode:
+                print("Актуатор активирован по команде от сервера")
+                set_actuator_mode(True)
+            else:
+                print('Невозможно включить актуатор, включен автоматический режим')
+
 
 client.on_connect = on_connect
 client.on_message = on_message

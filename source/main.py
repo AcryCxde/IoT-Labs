@@ -5,8 +5,6 @@ import random
 import time
 from tkinter import ttk
 import server
-
-
 # Создаем главное окно
 root = Tk()
 root.title("IoT-Lab1")
@@ -38,7 +36,7 @@ def smooth_smoke_level(current_level):
     if current_level > 0:
         change = random.uniform(-5, 5)
     else:
-        change = 0
+        change = 10
     new_level = current_level + change
     return max(0, min(100, new_level))
 
@@ -51,19 +49,22 @@ def update_graph():
     global smoke_level, update_interval, fire_suppression_active
 
     # Если режим пожаротушения активен, уменьшаем уровень дыма
+    actuator_mode = server.get_actuator_mode()
     if fire_suppression_active:
         smoke_level = reduce_smoke_level(smoke_level)
         if smoke_level == 0:  # Если уровень дыма достиг нуля, выключаем актуатор
             fire_suppression_active = False
+            server.set_actuator_mode(False)
     else:
         # Если уровень дыма выше порога, включаем пожаротушение
-        if smoke_level > threshold_level:
+        if smoke_level > threshold_level or actuator_mode:
             status_label.config(text="Пожар!\nВключена система тушения", fg="red")
             fire_suppression_active = True
         else:
             status_label.config(text="Система в норме", fg="green")
-            if not manual_mode.get():  # Продолжаем генерировать случайные значения
-                smoke_level = smooth_smoke_level(smoke_level)
+            server.set_actuator_mode(False)
+            fire_suppression_active = False # Продолжаем генерировать случайные значения
+            smoke_level = smooth_smoke_level(smoke_level)
 
     # Обновляем данные графика
     current_time = time.time()
