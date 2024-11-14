@@ -12,6 +12,7 @@ TOPIC_ACTUATOR = "iot_lab1/actuator"
 client = mqtt.Client(client_id="SmokeDetector_001", protocol=mqtt.MQTTv311)
 manual_mode = None
 actuator_mode = False
+data = None
 fire_suppression_status = None  # ссылка на функцию для активации пожаротушения
 start_time = time.time()
 
@@ -28,6 +29,7 @@ def set_manual_mode(var):
     manual_mode = var
 
 def publish_sensor_data(smoke_level):
+    global data
     current_time = time.time()
     elapsed_time = int(current_time - start_time)
     formatted_time = datetime.fromtimestamp(current_time).strftime('%Y-%m-%d %H:%M:%S')

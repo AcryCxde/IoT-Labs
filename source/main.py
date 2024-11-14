@@ -1,3 +1,4 @@
+import threading
 from tkinter import *
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -5,6 +6,7 @@ import random
 import time
 from tkinter import ttk
 import server
+import tg_bot
 # Создаем главное окно
 root = Tk()
 root.title("IoT-Lab1")
@@ -128,6 +130,11 @@ interval_slider.place(x=38, y=320)
 
 status_label = Label(root, text="Система в норме", font=("Arial", 14), fg="green")
 status_label.place(x=5, y=10)
+
+
+bot_thread = threading.Thread(target=tg_bot.main)
+bot_thread.daemon = True  # Устанавливаем поток как демон, чтобы он завершился при закрытии основного окна
+bot_thread.start()
 
 root.after(update_interval, update_graph)
 root.mainloop()
