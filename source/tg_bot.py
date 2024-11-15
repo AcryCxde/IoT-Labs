@@ -1,11 +1,10 @@
-import json
-
 import telebot
 import server
 
 
 def main():
-    bot = telebot.TeleBot('')
+    # Токен залил для возможности проверки локально, после оценки работы сделаю токен не действительным
+    bot = telebot.TeleBot('7607051624:AAFVyBkG94ul3R7yPfG6ZaN7lc-c-0K30Y8')
 
     @bot.message_handler(content_types=['text'])
     def get_text_messages(message):
