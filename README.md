@@ -1,13 +1,22 @@
-## Подключиться к MQTT клиенту:
- 
+## Документация к MQTT клиенту
 
- - **Просмотр данных:** `mosquitto_sub -h test.mosquitto.org -t iot_lab1/smoke_level`
- 
- - **Установка режима:**  
-	 - **Ручной:** `mosquitto_pub -h test.mosquitto.org -t "iot_lab1/mode" -m "manual"`
-	 - **Автоматический:** `mosquitto_pub -h test.mosquitto.org -t "iot_lab1/mode" -m "auto"`
+### Подключение к MQTT брокеру:
+Для подключения к MQTT брокеру используется библиотека `paho-mqtt`. В коде указаны параметры подключения:
 
- - **Активация акуатора (доступна только в ручном режиме):** `mosquitto_pub -h test.mosquitto.org -t "iot_lab1/actuator" -m "activate"`
+- **Брокер:** `dev.rightech.io`
+- **Порт:** `1883`
+- **Идентификатор клиента:** `mqtt-acry_wxrk-obj2`
 
+### Темы (Topics):
+В программе используются следующие темы для обмена данными:
+
+- **Состояние датчика:** `devices/mqtt-acry_wxrk-obj2/state`
+  - Используется для публикации данных о уровне задымления.
+  
+- **Режим работы:** `devices/mqtt-acry_wxrk-obj2/commands/mode`
+  - Используется для установки режима работы: ручной или автоматический.
+  
+- **Управление актуатором:** `devices/mqtt-acry_wxrk-obj2/commands/actuator`
+  - Используется для активации актуатора в ручном режиме.
 ## Запуск программы:
 **Запустите исполняемый файл main.py**

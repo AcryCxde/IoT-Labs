@@ -1,6 +1,4 @@
 import paho.mqtt.client as mqtt
-import json
-from datetime import datetime
 import time
 
 BROKER = "dev.rightech.io"
