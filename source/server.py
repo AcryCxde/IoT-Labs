@@ -3,13 +3,14 @@ import json
 from datetime import datetime
 import time
 
-BROKER = "test.mosquitto.org"
+BROKER = "dev.rightech.io"
 PORT = 1883
-TOPIC_SENSOR = "iot_lab1/smoke_level"
-TOPIC_MODE = "iot_lab1/mode"
-TOPIC_ACTUATOR = "iot_lab1/actuator"
+CLIENT_ID = "mqtt-acry_wxrk-obj2"
+TOPIC_SENSOR = f"devices/{CLIENT_ID}/state"
+TOPIC_MODE = f"devices/{CLIENT_ID}/commands/mode"
+TOPIC_ACTUATOR = f"devices/{CLIENT_ID}/commands/actuator"
 
-client = mqtt.Client(client_id="SmokeDetector_001", protocol=mqtt.MQTTv311)
+client = mqtt.Client(client_id=CLIENT_ID, protocol=mqtt.MQTTv311)
 manual_mode = None
 actuator_mode = False
 fire_suppression_status = None  # ссылка на функцию для активации пожаротушения
@@ -28,17 +29,10 @@ def set_manual_mode(var):
     manual_mode = var
 
 def publish_sensor_data(smoke_level):
-    current_time = time.time()
-    elapsed_time = int(current_time - start_time)
-    formatted_time = datetime.fromtimestamp(current_time).strftime('%Y-%m-%d %H:%M:%S')
+
     rounded_smoke_level = round(smoke_level, 1)
 
-    data = {
-        "timestamp": formatted_time,
-        "elapsed_time": elapsed_time,
-        "smoke_level": rounded_smoke_level
-    }
-    client.publish(TOPIC_SENSOR, json.dumps(data))
+    client.publish(TOPIC_SENSOR, payload=rounded_smoke_level)
 
 def set_fire_suppression_status(status_func):
     global fire_suppression_status
@@ -52,14 +46,19 @@ def on_connect(client, userdata, flags, rc):
 def on_message(client, userdata, msg):
     global manual_mode
     payload = msg.payload.decode()
-
     if msg.topic == TOPIC_MODE:
         if payload == "auto":
-            set_manual_mode(0)
-            print("Автоматический режим включен")
+            if manual_mode == 0:
+                print("Автоматический режим УЖЕ включен")
+            else:
+                set_manual_mode(0)
+                print("Автоматический режим включен")
         elif payload == "manual":
-            set_manual_mode(1)
-            print("Ручной режим включен")
+            if manual_mode == 1:
+                print("Ручной режим УЖЕ включен")
+            else:
+                set_manual_mode(1)
+                print("Ручной режим включен")
 
     elif msg.topic == TOPIC_ACTUATOR:
         if payload == "activate":

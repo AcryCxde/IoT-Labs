@@ -15,7 +15,7 @@ x_data = []
 y_data = []
 
 # Начальный уровень дыма
-smoke_level = 50
+smoke_level = 60
 update_interval = 5000
 threshold_level = 80
 fire_suppression_active = False  # Флаг, активен ли режим пожаротушения
