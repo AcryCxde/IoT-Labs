@@ -1,12 +1,18 @@
 import paho.mqtt.client as mqtt
 import time
+import firebase_admin
+from firebase_admin import credentials, db, firestore
 
-BROKER = "dev.rightech.io"
+cred = credentials.Certificate("iot-smoke-level-firebase-adminsdk-fbsvc-3b406a8e93.json")
+firebase_admin.initialize_app(cred, {
+    'databaseURL': 'https://iot-smoke-level-default-rtdb.firebaseio.com/'
+})
+ref = db.reference('/')
+BROKER = "mqtt.eclipseprojects.io"
 PORT = 1883
-CLIENT_ID = "mqtt-acry_wxrk-obj2"
-TOPIC_SENSOR = f"devices/{CLIENT_ID}/state"
-TOPIC_MODE = f"devices/{CLIENT_ID}/commands/mode"
-TOPIC_ACTUATOR = f"devices/{CLIENT_ID}/commands/actuator"
+CLIENT_ID = "flutter_mqtt_client"
+TOPIC_MODE = "iot_lab1/mode"
+TOPIC_ACTUATOR = "iot_lab1/actuator"
 
 client = mqtt.Client(client_id=CLIENT_ID, protocol=mqtt.MQTTv311)
 manual_mode = None
@@ -27,10 +33,9 @@ def set_manual_mode(var):
     manual_mode = var
 
 def publish_sensor_data(smoke_level):
+    rounded_smoke_level = str(round(smoke_level, 1))
 
-    rounded_smoke_level = round(smoke_level, 1)
-
-    client.publish(TOPIC_SENSOR, payload=rounded_smoke_level)
+    ref.child('smoke_level').set(rounded_smoke_level)
 
 def set_fire_suppression_status(status_func):
     global fire_suppression_status
